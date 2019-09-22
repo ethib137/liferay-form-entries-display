@@ -4,31 +4,31 @@
 		"category": "liferay-form-entries-display",
 		"name": "liferay-form-entries-display",
 		"fields": {
-			"fruit": {
+			"email": {
 				"type": "string",
-				"name": "fruit",
-				"description": "fruit-help",
-				"default": "orange",
-				"options": {
-					"orange": "an-orange",
-					"pear": "a-pear",
-					"apple": "an-apple"
-				}
+				"name": "email",
+				"description": "authorized-users-email-address",
+				"default": "test@liferay.com"
+			},
+			"password": {
+				"type": "string",
+				"name": "password",
+				"description": "authorized-users-email-password",
+				"default": "test"
 			}
 		}
 	},
 	"portletInstance": {
 		"fields": {
-			"drink": {
+			"formId": {
 				"type": "string",
-				"name": "drink",
-				"description": "drink-help",
-				"default": "water",
-				"options": {
-					"water": "water",
-					"wine": "wine",
-					"beer": "beer"
-				}
+				"name": "form-id",
+				"description": "include-a-form-id-to-display-the-form-results"
+			},
+			"showDraft": {
+				"type": "boolean",
+				"name": "show-draft",
+				"description": "show-draft-form-entries"
 			}
 		}
 	}
