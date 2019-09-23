@@ -12,31 +12,32 @@ export default class extends React.Component {
 			formFields: []
 		};
 
-		this._setFormFields = this._setFormFields.bind(this);
+		this._renderFieldValue = this._renderFieldValue.bind(this);
+		this._formatFormFields = this._formatFormFields.bind(this);
 	}
 
 	componentDidMount() {
 		const formId = this.props.configuration.portletInstance.formId;
 
-		this._fetch(`/o/headless-form/v1.0/forms/${formId}/form-records`).then(
+		Promise.all(
+			[
+				this._fetch(`/o/headless-form/v1.0/forms/${formId}`),
+				this._fetch(`/o/headless-form/v1.0/forms/${formId}/form-records`)
+			]
+		).then(
 			data => {
+				const form = JSON.parse(data[0]);
+				const formEntries = JSON.parse(data[1]);
+
+				const formFields = this._formatFormFields(form);
+
 				this.setState(
 					{
-						formEntries: JSON.parse(data)
+						form,
+						formEntries,
+						formFields
 					}
 				);
-			}
-		);
-
-		this._fetch(`/o/headless-form/v1.0/forms/${formId}`).then(
-			data => {
-				this.setState(
-					{
-						form: JSON.parse(data)
-					}
-				);
-
-				this._setFormFields(JSON.parse(data));
 			}
 		);
 	}
@@ -63,24 +64,38 @@ export default class extends React.Component {
 		);
 	}
 
-	_setFormFields(form) {
+	_formatFormFields(form) {
 		let formFields = [];
 
 		form.structure.formPages.forEach(
 			formPage => {
 				formPage.formFields.forEach(
 					formField => {
-						formFields.push(formField);
+						if (formField.inputControl != 'paragraph') {
+							formFields.push(formField);
+						}
 					}
 				);
 			}
 		);
 
-		this.setState(
-			{
-				formFields: formFields
-			}
-		);
+		return formFields;
+	}
+
+	_renderFieldValue(field, i) {
+		let retVal;
+
+		var fieldType = this.state.formFields[i];
+
+		switch (fieldType.inputControl) {
+			case 'document_library':
+				retVal = <a href={field.formDocument.contentUrl}>{field.formDocument.title}</a>;
+			break;
+			default:
+				retVal = field.value;
+		}
+
+		return retVal;
 	}
 
 	render() {
@@ -137,9 +152,9 @@ export default class extends React.Component {
 										<span className="lfr-portal-tooltip" data-title={moment(item.dateCreated).format('MMMM Do YYYY, h:mm:ss a')}>{moment(item.dateCreated).fromNow()}</span>
 									</td>
 
-									{item.formFieldValues.map(formFieldValue =>
+									{item.formFieldValues.map((formFieldValue, i) =>
 										(
-											<td key={item.id + formFieldValue.name}>{formFieldValue.value}</td>
+											<td key={item.id + formFieldValue.name}>{this._renderFieldValue(formFieldValue, i)}</td>
 										)
 									)}
 
