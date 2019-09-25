@@ -31,25 +31,22 @@ export default class extends React.Component {
 
 				const formFields = this._formatFormFields(form);
 
-				this.setState(
-					{
-						form,
-						formEntries,
-						formFields
-					}
-				);
+				this.setState({
+					form,
+					formEntries,
+					formFields
+				});
 			}
 		);
 	}
 
 	_fetch(url) {
-		const {email, password} = this.props.configuration.system;
+		const { email, password } = this.props.configuration.system;
 
 		const authorization = `Basic ${btoa(email + ':' + password)}`;
 
 		return fetch(
-			url,
-			{
+			url, {
 				method: 'GET',
 				headers: {
 					'Authorization': authorization
@@ -58,7 +55,7 @@ export default class extends React.Component {
 		).then(
 			data => data.text()
 		).catch(
-			function (err) {
+			function(err) {
 				console.log('Failed to fetch: ', err);
 			}
 		);
@@ -89,8 +86,15 @@ export default class extends React.Component {
 
 		switch (fieldType.inputControl) {
 			case 'document_library':
-				retVal = <a href={field.formDocument.contentUrl}>{field.formDocument.title}</a>;
-			break;
+				const { formDocument } = field;
+
+				if (formDocument) {
+					retVal = <a href={formDocument.contentUrl}>{formDocument.title}</a>;
+				} else {
+					retVal = '';
+				}
+
+				break;
 			default:
 				retVal = field.value;
 		}
@@ -99,10 +103,10 @@ export default class extends React.Component {
 	}
 
 	render() {
-		const {formEntries, formFields} = this.state;
-		const {showDraft} = this.props.configuration.portletInstance;
+		const { formEntries, formFields } = this.state;
+		const { showDraft } = this.props.configuration.portletInstance;
 
-		let {items} = formEntries;
+		let { items } = formEntries;
 
 		if (items && !showDraft) {
 			items = items.filter(item => !item.draft);
